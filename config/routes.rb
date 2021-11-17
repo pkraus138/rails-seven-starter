@@ -1,6 +1,6 @@
 Rails.application.routes.draw do
-  # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
+  devise_for :users
+  root to: "public#home"
 
-  # Almost every application defines a route for the root path ("/") at the top of this file.
-  # root "articles#index"
+  resource :public, only: :home
 end
