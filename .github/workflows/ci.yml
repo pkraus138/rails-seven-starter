@@ -1,0 +1,93 @@
+name: CI
+on: [push]
+
+env:
+  CI: true
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '12'
+          cache: 'yarn'
+
+      - name: Install packages
+        run: |
+          yarn install --pure-lockfile
+
+      - name: Run linters
+        run: |
+          bundle exec standardrb
+
+  security:
+    name: Security
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Run security checks
+        run: |
+          bundle exec bundle-audit update && bundle exec bundle-audit check
+          bundle exec brakeman --format github --no-pager
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:12
+        env:
+          POSTGRES_USER: pg_user
+          POSTGRES_DB: rails_seven_test
+          POSTGRES_PASSWORD: pg_password
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '12'
+          cache: 'yarn'
+
+      - name: Install packages
+        run: |
+          yarn install --pure-lockfile
+
+      - name: Setup test database
+        env:
+          RAILS_ENV: test
+          DATABASE_HOST: localhost
+          DATABASE_USER: pg_user
+          DATABASE_PASSWORD: pg_password
+        run: |
+          bin/rails db:create
+          bin/rails db:schema:load
+
+      - name: Run tests
+        env:
+          DATABASE_HOST: localhost
+          DATABASE_PASSWORD: pg_password
+          DATABASE_USER: pg_user
+          RAILS_ENV: test
+        run: |
+          bundle exec rspec
