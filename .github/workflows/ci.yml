@@ -1,93 +1,78 @@
-name: CI
+name: Main
+
 on: [push]
 
-env:
-  CI: true
-
 jobs:
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: ruby/setup-ruby@v1
-        with:
-          bundler-cache: true
-
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '12'
-          cache: 'yarn'
-
-      - name: Install packages
-        run: |
-          yarn install --pure-lockfile
-
-      - name: Run linters
-        run: |
-          bundle exec standardrb
-
-  security:
-    name: Security
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: ruby/setup-ruby@v1
-        with:
-          bundler-cache: true
-
-      - name: Run security checks
-        run: |
-          bundle exec bundle-audit update && bundle exec bundle-audit check
-          bundle exec brakeman --format github --no-pager
-
   test:
-    name: Test
     runs-on: ubuntu-latest
+
     services:
       postgres:
-        image: postgres:12
+        image: postgres:10.8
         env:
-          POSTGRES_USER: pg_user
-          POSTGRES_DB: rails_seven_test
-          POSTGRES_PASSWORD: pg_password
-        ports: ["5432:5432"]
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ""
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        # needed because the postgres container does not provide a healthcheck
+        # tmpfs makes DB faster by using RAM
         options: >-
+          --mount type=tmpfs,destination=/var/lib/postgresql/data
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+        options: --entrypoint redis-server
+
+    # https://help.github.com/en/articles/workflow-syntax-for-github-actions#jobsjob_idstrategymatrix
+    strategy:
+      fail-fast: false
+      matrix:
+        # [n] - where the n is a number of parallel jobs you want to run your tests on.
+        # Use a higher number if you have slow tests to split them between more parallel jobs.
+        # Remember to update the value of the `ci_node_index` below to (0..n-1).
+        ci_node_total: [8]
+        # Indexes for parallel jobs (starting from zero).
+        # E.g. use [0, 1] for 2 parallel jobs, [0, 1, 2] for 3 parallel jobs, etc.
+        ci_node_index: [0, 1, 2, 3, 4, 5, 6, 7]
+
+    env:
+      RAILS_ENV: test
+      # GEMFILE_RUBY_VERSION: 2.7.2
+      PGHOST: localhost
+      PGUSER: postgres
+      # Rails verifies the time zone in DB is the same as the time zone of the Rails app
+      TZ: "Europe/Warsaw"
 
     steps:
       - uses: actions/checkout@v2
-      - uses: ruby/setup-ruby@v1
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
         with:
+          # runs 'bundle install' and caches installed gems automatically
           bundler-cache: true
 
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '12'
-          cache: 'yarn'
-
-      - name: Install packages
+      - name: Create DB
         run: |
-          yarn install --pure-lockfile
-
-      - name: Setup test database
-        env:
-          RAILS_ENV: test
-          DATABASE_HOST: localhost
-          DATABASE_USER: pg_user
-          DATABASE_PASSWORD: pg_password
-        run: |
-          bin/rails db:create
-          bin/rails db:schema:load
-
+          bin/rails db:prepare
       - name: Run tests
         env:
-          DATABASE_HOST: localhost
-          DATABASE_PASSWORD: pg_password
-          DATABASE_USER: pg_user
-          RAILS_ENV: test
+          # KNAPSACK_PRO_TEST_SUITE_TOKEN_RSPEC: ${{ secrets.KNAPSACK_PRO_TEST_SUITE_TOKEN_RSPEC }}
+          # KNAPSACK_PRO_CI_NODE_TOTAL: ${{ matrix.ci_node_total }}
+          # KNAPSACK_PRO_CI_NODE_INDEX: ${{ matrix.ci_node_index }}
+          # KNAPSACK_PRO_LOG_LEVEL: info
+          # if you use Knapsack Pro Queue Mode you must set below env variable
+          # to be able to retry CI build and run previously recorded tests
+          # https://github.com/KnapsackPro/knapsack_pro-ruby#knapsack_pro_fixed_queue_split-remember-queue-split-on-retry-ci-node
+          # KNAPSACK_PRO_FIXED_QUEUE_SPLIT: true
+          # RSpec split test files by test examples feature - it's optional
+          # https://knapsackpro.com/faq/question/how-to-split-slow-rspec-test-files-by-test-examples-by-individual-it
+          # KNAPSACK_PRO_RSPEC_SPLIT_BY_TEST_EXAMPLES: true
         run: |
-          bundle exec rspec
+          bundle exec rake
