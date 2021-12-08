@@ -21,7 +21,7 @@ RSpec.describe "User logs in", type: :system do
       fill_in "Password", with: user.password
       find("#user_password").native.send_keys(:return)
 
-      expect(page).to have_content("Signed in successfully")
+      expect(page).to have_content("Home")
     end
   end
 
@@ -48,4 +48,3 @@ RSpec.describe "User logs in", type: :system do
     end
   end
 end
-
