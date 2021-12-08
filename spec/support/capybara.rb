@@ -7,10 +7,10 @@ Capybara.register_driver :selenium_chrome_headless_js do |app|
   [
     "headless",
     "window-size=1280x1280",
-    "disable-gpu",
+    "disable-gpu"
   ].each { |arg| options.add_argument(arg) }
 
-  Capybara::Selenium::Driver.new(app, browser: :chrome, options: options)
+  Capybara::Selenium::Driver.new(app, browser: :chrome, capabilities: [options])
 end
 
 RSpec.configure do |config|
@@ -22,4 +22,3 @@ RSpec.configure do |config|
     driven_by :selenium_chrome_headless_js
   end
 end
-
