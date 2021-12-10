@@ -43,11 +43,10 @@ jobs:
 
     env:
       RAILS_ENV: test
-      # GEMFILE_RUBY_VERSION: 2.7.2
       PGHOST: localhost
       PGUSER: postgres
       # Rails verifies the time zone in DB is the same as the time zone of the Rails app
-      TZ: "Europe/Warsaw"
+      TZ: "US/Eastern"
 
     steps:
       - uses: actions/checkout@v2
