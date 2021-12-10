@@ -3,6 +3,21 @@ name: Main
 on: [push]
 
 jobs:
+  lint:
+    name: Run Linter
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Run Standard
+        run: |
+          bundle exec standardrb
+
   security:
     name: Security
     runs-on: ubuntu-latest
