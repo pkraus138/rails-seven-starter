@@ -3,7 +3,24 @@ name: Main
 on: [push]
 
 jobs:
+  security:
+    name: Security
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Run security checks
+        run: |
+          bundle exec bundle-audit update && bundle exec bundle-audit check
+          bundle exec brakeman --format github --no-pager
+
   test:
+    name: Tests
     runs-on: ubuntu-latest
 
     services:
@@ -45,7 +62,6 @@ jobs:
       RAILS_ENV: test
       PGHOST: localhost
       PGUSER: postgres
-      # Rails verifies the time zone in DB is the same as the time zone of the Rails app
       TZ: "US/Eastern"
 
     steps:
@@ -54,7 +70,6 @@ jobs:
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          # runs 'bundle install' and caches installed gems automatically
           bundler-cache: true
 
       - name: Create DB
