@@ -4,17 +4,19 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 ruby "3.0.2"
 
 gem "bootsnap", ">= 1.4.4", require: false
+gem "cssbundling-rails"
 gem "devise", git: "https://github.com/heartcombo/devise.git", branch: "main"
 gem "haml-rails"
-gem "importmap-rails", ">= 0.3.4"
+gem "importmap-rails"
 gem "jbuilder", "~> 2.7"
+gem "jsbundling-rails"
 gem "pg", "~> 1.1"
 gem "puma", "~> 5.0"
 gem "rails"
 gem "redis", "~> 4.0"
-gem "stimulus-rails", ">= 0.4.0"
-gem "sassc-rails", "~> 2.1"
-gem "turbo-rails", ">= 0.7.11"
+gem "stimulus-rails"
+gem "sassc-rails"
+gem "turbo-rails"
 gem "tzinfo-data", platforms: %i[mingw mswin x64_mingw jruby]
 
 group :development, :test do
