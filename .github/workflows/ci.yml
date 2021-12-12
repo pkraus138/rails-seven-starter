@@ -90,6 +90,9 @@ jobs:
       - name: Create DB
         run: |
           bin/rails db:prepare
+      - name: Build CSS
+        run: |
+          bin/rails css:build
       - name: Run tests
         run: |
           bundle exec rake
