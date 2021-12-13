@@ -300,23 +300,23 @@ PLATFORMS
 DEPENDENCIES
   better_errors
   binding_of_caller
-  bootsnap (>= 1.4.4)
+  bootsnap
   brakeman
   bundler-audit
   capybara
   cssbundling-rails
-  debug (>= 1.0.0)
+  debug
   devise!
   factory_bot_rails
   faker
   haml-rails
   importmap-rails
-  jbuilder (~> 2.7)
+  jbuilder
   jsbundling-rails
-  pg (~> 1.1)
-  puma (~> 5.0)
+  pg
+  puma
   rails
-  redis (~> 4.0)
+  redis
   rspec-rails
   sassc-rails
   selenium-webdriver
@@ -324,7 +324,7 @@ DEPENDENCIES
   stimulus-rails
   turbo-rails
   tzinfo-data
-  web-console (>= 4.1.0)
+  web-console
 
 RUBY VERSION
    ruby 3.0.2p107
