@@ -1,0 +1,25 @@
+%nav.navbar.navbar-expand-lg.navbar-dark.bg-dark
+  .container-fluid
+    = link_to "Navbar", root_path, class: "navbar-brand"
+    %button.navbar-toggler{ type: "button",
+      data: { bs_toggle: "collapse", bs_target: "#navbarSupportedContent" },
+      aria: { expanded: false, label: "Toggle navigation", controls: "navbarSupportedContent" } }
+      %span.navbar-toggler-icon
+    #navbarSupportedContent.collapse.navbar-collapse
+      %ul.navbar-nav.me-auto.mb-2.mb-lg-0
+        %li.nav-item
+          = active_link_to "Home", root_path, class: "nav-link"
+      %ul.navbar-nav.me-auto.mb-2.mb-lg-0
+        %li.nav-item.dropdown
+          = link_to "Dropdown", "#", id: "navbarDropdown",
+            class: "nav-link dropdown-toggle",
+            data: { bs_toggle: "dropdown", aria_expanded: false }
+          %ul.dropdown-menu(aria-labelledby="navbarDropdown")
+            %li
+              %a.dropdown-item(href="#") My Account?
+            %li
+              %a.dropdown-item(href="#") Another action?
+            %li
+              %hr.dropdown-divider
+            %li
+              %a.dropdown-item(href="#") Something else here?

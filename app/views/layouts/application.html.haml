@@ -10,7 +10,9 @@
     = javascript_include_tag "application", "data-turbo-track": "reload", defer: true
     -# = javascript_importmap_tags
   %body
-    %p.notice= notice
-    %p.alert= alert
-    = yield
+    = render partial: "shared/navbar"
+
+    .container-fluid
+      = render partial: "shared/flashes"
+      = yield
 
